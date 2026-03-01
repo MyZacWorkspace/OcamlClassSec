@@ -40,7 +40,10 @@ type expr =
 (** [string_of_op op] returns "+", "-", or "*". *)
 let string_of_op (_o : op) : string =
   (* EXERCISE: pattern match on the three op cases *)
-  failwith "TODO: string_of_op"
+  match _o with
+  | Add -> "+"
+  | Sub -> "-"
+  | _ ->   "*"
 [@@warning "-32"]
 
 (** [string_of_expr e] returns a fully parenthesized string.
@@ -48,26 +51,36 @@ let string_of_op (_o : op) : string =
       Num 3           --> "3"
       Var "x"         --> "x"
       BinOp(Add, Num 1, Var "x")  --> "(1 + x)" *)
-let string_of_expr (_e : expr) : string =
+let rec string_of_expr (_e : expr) : string =
   (* EXERCISE: pattern match on Num, Var, BinOp
      Hint: this function needs to be recursive -- add [rec] when ready *)
-  failwith "TODO: string_of_expr"
-
+    match _e with
+    | Num n -> string_of_int n
+    | Var v -> v
+    | BinOp (o, e1, e2) -> "(" ^ string_of_expr e1 ^ string_of_op o ^ string_of_expr e2 ^ ")"
+    (*Context free grammar from advanced computing!*)
 (* ----------------------------------------------------------------
    Part 3: Tree Metrics
    ---------------------------------------------------------------- *)
 
 (** [count_nodes e] returns the total number of nodes in the tree.
     Num and Var are 1 node each. BinOp is 1 + left + right. *)
-let count_nodes (_e : expr) : int =
+let rec count_nodes (_e : expr) : int =
   (* EXERCISE: recursive pattern match -- add [rec] when ready *)
-  failwith "TODO: count_nodes"
+  match _e with
+  | Num _ -> 1
+  | Var _ -> 1
+  | BinOp (_, e1, e2) -> 1 + count_nodes(e1) + count_nodes(e2)
+
 
 (** [depth e] returns the depth of the tree (Num/Var = 1,
     BinOp = 1 + max of children). *)
-let depth (_e : expr) : int =
+let rec depth (_e : expr) : int =
   (* EXERCISE: recursive pattern match, use max -- add [rec] when ready *)
-  failwith "TODO: depth"
+  match _e with
+  | Num _ -> 1
+  | Var _ -> 1
+  | BinOp(_ , e1 , e2) -> 1 + max (depth e1) (depth e2)
 
 (* ----------------------------------------------------------------
    Part 4: Evaluation with Option
@@ -88,9 +101,14 @@ let depth (_e : expr) : int =
 
     Hint: use [match eval left, eval right with]
     to evaluate both sides, then pattern match on the pair. *)
-let eval (_e : expr) : int option =
+let rec eval (_e : expr) : int option =
   (* EXERCISE: handle Num, Var, and BinOp -- add [rec] when ready *)
-  failwith "TODO: eval"
+  match _e with
+  | Var _ -> None
+  | Num n -> Some n
+  | BinOp(_ , e1, e2) -> 
+    
+  (* How do we combine two separate expressions (int options) together*)
 
 (* ----------------------------------------------------------------
    Part 5: Tree Transformations
