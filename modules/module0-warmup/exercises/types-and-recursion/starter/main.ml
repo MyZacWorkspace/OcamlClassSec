@@ -106,10 +106,15 @@ let rec eval (_e : expr) : int option =
   match _e with
   | Var _ -> None
   | Num n -> Some n
-  | BinOp(_ , e1, e2) -> 
+  | BinOp(op , e1, e2) -> 
+    match eval e1, eval e2 with
+    | None, None -> None
+    | Some _, None -> None
+    | None, Some _ -> None
+    | Some a, Some b -> if op = Add then Some(a + b) else
+      if op = Sub then Some(a - b) else Some(a *b)
+  
     
-  (* How do we combine two separate expressions (int options) together*)
-
 (* ----------------------------------------------------------------
    Part 5: Tree Transformations
    ---------------------------------------------------------------- *)
