@@ -124,40 +124,57 @@ let rec eval (_e : expr) : int option =
 
     Example: substitute "x" 5 (BinOp(Add, Var "x", Num 1))
              --> BinOp(Add, Num 5, Num 1) *)
-let substitute (_var_name : string) (_value : int) (_e : expr) : expr =
+let rec substitute (_var_name : string) (_value : int) (_e : expr) : expr =
   (* EXERCISE: pattern match; for Var, check if name matches
      Hint: add [rec] when ready *)
-  failwith "TODO: substitute"
+  match _e with
+  | Var v -> if v = _var_name then Num _value else Var v
+  | Num _ -> _e
+  | BinOp(op, e1 , e2) -> BinOp(op , substitute _var_name _value e1, substitute _var_name _value e2)
 
 (** [vars_in e] returns a sorted, deduplicated list of all variable
     names appearing in [e].
 
     Hint: collect into a list, then use List.sort_uniq. *)
 let vars_in (_e : expr) : string list =
-  let collect (_e : expr) : string list =
+  let rec collect (_e : expr) : string list =
     (* EXERCISE: Num -> [], Var name -> [name], BinOp -> left @ right
        Hint: add [rec] to collect when ready *)
-    failwith "TODO: vars_in"
+    match _e with
+    | Num _ -> []
+    | Var name -> [name]
+    | BinOp(_, e1 , e2) -> (collect e1) @ (collect e2)
   in
   List.sort_uniq String.compare (collect _e)
 
 (** [is_constant e] returns true if [e] contains no Var nodes. *)
-let is_constant (_e : expr) : bool =
+let rec is_constant (_e : expr) : bool =
   (* EXERCISE: use vars_in or write a direct recursive check *)
-  failwith "TODO: is_constant"
+  match _e with
+  | Var _ -> false
+  | Num _ -> true
+  | BinOp(_ ,e1 , e2) -> (is_constant e1) && is_constant e2
 
 (** [simplify e] performs constant folding: if a BinOp has two Num
     children, replace it with the computed Num.
     Apply recursively (simplify children first, then check).
 
     Example: BinOp(Add, Num 2, Num 3) --> Num 5 *)
-let simplify (_e : expr) : expr =
+let rec simplify (_e : expr) : expr =
   (* EXERCISE: add [rec] when ready.
      Match on Num/Var (return as-is) and BinOp:
        1. Simplify both children first
        2. If both are Num, compute the result
        3. Otherwise return BinOp(o, left', right') *)
-  failwith "TODO: simplify"
+  match _e with
+  | Num n -> Num n
+  | Var n -> Var n
+  | BinOp(o, e1 , e2) -> match simplify e1, simplify e2 with
+          | Num n1 , Num n2 -> if o = Add then Num (n1 + n2)
+                              else if o = Sub then Num (n1 - n2)
+                              else Num (n1 * n2)
+          | _ -> BinOp(o, e1, e2)
+
 
 (* ================================================================
    Main -- runs all exercises and prints results.
